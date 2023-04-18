@@ -78,7 +78,7 @@ function renderSearch() {
 
     const searchBar = document.createElement('input');
     searchBar.placeholder = 'Type character`s name...';
-    searchBar.type = 'search';
+    searchBar.type = 'text';
     searchBar.classList.add('search-bar');
     searchBar.addEventListener('input', (e) => { debounce(searchForChar)(e); } ); // search for char is a callback!
 
