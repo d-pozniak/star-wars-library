@@ -18,14 +18,12 @@ function debounce(func, delay = 1000) {
 }
 
 function displaySelectedPerson(event) {
+    resultField.remove();
     const searchVal = event.target.textContent;
     const personInfo = peopleFound.filter(person => person.name === searchVal)[0];
 
     const personCard = document.createElement('div');
     personCard.classList.add('person-card');
-    const closeBtn = document.createElement('button')
-    closeBtn.textContent = 'hide';
-    closeBtn.addEventListener('click', () => { renderPeople(peopleFound)})
 
     const personName = document.createElement('h2');
     personName.textContent = personInfo.name;
@@ -34,26 +32,31 @@ function displaySelectedPerson(event) {
     const personHeight = document.createElement('div');
     personHeight.textContent = `height: ${personInfo.height}cm`;
 
-    personCard.append(closeBtn, personName, personBirth, personHeight);
-    resultField.replaceChildren(personCard);
+    personCard.append(personName, personBirth, personHeight);
+    const prevPerson = document.querySelector('.person-card');
+    if (prevPerson) prevPerson.remove();
+    main.append(personCard);
 }
 
-function renderPeople(people){
-    main.appendChild(resultField);
+function renderPeople(people, enterPoint){
+    enterPoint.appendChild(resultField);
+    const prevPerson = document.querySelector('.person-card');
+    if (prevPerson) prevPerson.remove();
+
     if (people.length === 0) resultField.replaceChildren(document.createTextNode('nothing found'));
     else {
         const peopleElems = people.map(person => {
             const pName = document.createElement('div');
             pName.textContent = person.name;
             pName.classList.add('person-link');
-            pName.addEventListener('click', (e) => displaySelectedPerson(e));
+            pName.addEventListener('click', (e) => displaySelectedPerson(e, enterPoint));
             return pName;
         });
         resultField.replaceChildren(...peopleElems);
     }
 }
 
-function searchForChar(e) {
+function searchForChar(e, enterPoint) {
     const searchVal = e.target.value;
     if (!searchVal) {
         resultField.remove();
@@ -63,7 +66,7 @@ function searchForChar(e) {
         .then(response => response.json())
             .then(json => {
                 peopleFound = json.results;
-                renderPeople(peopleFound);
+                renderPeople(peopleFound, enterPoint);
             })
         .catch( (error) => {
             console.error(`Download error ${error}`);
@@ -75,12 +78,17 @@ function renderSearch() {
     title.textContent = 'Learn more about any of the characters';
 
     const pageForm = document.querySelector('.page-form');
+    main.classList.remove('search-stopped')
+
+    const searchDiv = document.createElement('div');
+    searchDiv.classList.add('search-section')
 
     const searchBar = document.createElement('input');
     searchBar.placeholder = 'Type character`s name...';
     searchBar.type = 'text';
     searchBar.classList.add('search-bar');
-    searchBar.addEventListener('input', (e) => { debounce(searchForChar)(e); } ); // search for char is a callback!
+    searchDiv.append(searchBar);
+    searchBar.addEventListener('input', (e) => { debounce(searchForChar)(e, searchDiv); } ); // search for char is a callback!
 
     const restartButton = document.createElement('input');
     restartButton.type = 'button';
@@ -88,11 +96,12 @@ function renderSearch() {
     restartButton.classList.add('restart-btn');
     restartButton.addEventListener('click', () => {
         pageForm.replaceChildren(startButton);
+        main.classList.add('search-stopped');
+        main.replaceChildren(pageForm);
         title.textContent = primaryTitle;
-        resultField.remove();
     })
 
-    pageForm.replaceChildren(restartButton, searchBar);
+    pageForm.replaceChildren(restartButton, searchDiv);
 }
 
 startButton.addEventListener('click', renderSearch);
