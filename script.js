@@ -3,9 +3,7 @@ const startButton = document.querySelector('.start-btn');
 const title = document.querySelector('.page-title');
 const primaryTitle = title.textContent;
 
-const resultField = document.createElement('div');
-resultField.classList.add('result-field');
-// resultField.addEventListener('click', (e) => displaySelectedPerson(e));
+const resultField = createCustomElem('div', 'result-field');
 
 let peopleFound;
 
@@ -17,22 +15,26 @@ function debounce(func, delay = 1000) {
     }
 }
 
+function createCustomElem(tag,className, textContent = '', ) {
+    const element = document.createElement(tag);
+    element.classList.add(className);
+    element.textContent = textContent;
+    return element;
+}
+
 function displaySelectedPerson(event) {
     resultField.remove();
     const searchVal = event.target.textContent;
     const personInfo = peopleFound.filter(person => person.name === searchVal)[0];
 
-    const personCard = document.createElement('div');
-    personCard.classList.add('person-card');
-
-    const personName = document.createElement('h2');
-    personName.textContent = personInfo.name;
-    const personBirth = document.createElement('div');
-    personBirth.textContent = `birth year: ${personInfo.birth_year}`;
-    const personHeight = document.createElement('div');
-    personHeight.textContent = `height: ${personInfo.height}cm`;
-
+    const personCard = createCustomElem('div', 'person-card');
+    const personName = createCustomElem('h2', 'person-name', personInfo.name);
+    const personBirth = createCustomElem('div', 'person-birth',
+                                        `birth year: ${personInfo.birth_year}`);
+    const personHeight = createCustomElem('div', 'person-height',
+                                        `height: ${personInfo.height}cm`);
     personCard.append(personName, personBirth, personHeight);
+
     const prevPerson = document.querySelector('.person-card');
     if (prevPerson) prevPerson.remove();
     main.append(personCard);
@@ -43,12 +45,11 @@ function renderPeople(people, enterPoint){
     const prevPerson = document.querySelector('.person-card');
     if (prevPerson) prevPerson.remove();
 
-    if (people.length === 0) resultField.replaceChildren(document.createTextNode('nothing found'));
+    if (people.length === 0)
+        resultField.replaceChildren(document.createTextNode('nothing found'));
     else {
         const peopleElems = people.map(person => {
-            const pName = document.createElement('div');
-            pName.textContent = person.name;
-            pName.classList.add('person-link');
+            const pName = createCustomElem('div', 'person-link', person.name);
             pName.addEventListener('click', (e) => displaySelectedPerson(e, enterPoint));
             return pName;
         });
@@ -80,20 +81,16 @@ function renderSearch() {
     const pageForm = document.querySelector('.page-form');
     main.classList.remove('search-stopped')
 
-    const searchDiv = document.createElement('div');
-    searchDiv.classList.add('search-section')
-
-    const searchBar = document.createElement('input');
+    const searchDiv = createCustomElem('div', 'search-container');
+    const searchBar = createCustomElem('input', 'search-bar');
     searchBar.placeholder = 'Type character`s name...';
     searchBar.type = 'text';
-    searchBar.classList.add('search-bar');
     searchDiv.append(searchBar);
     searchBar.addEventListener('input', (e) => { debounce(searchForChar)(e, searchDiv); } ); // search for char is a callback!
 
-    const restartButton = document.createElement('input');
+    const restartButton = createCustomElem('input', 'restart-btn');
     restartButton.type = 'button';
     restartButton.value = 'Back';
-    restartButton.classList.add('restart-btn');
     restartButton.addEventListener('click', () => {
         pageForm.replaceChildren(startButton);
         main.classList.add('search-stopped');

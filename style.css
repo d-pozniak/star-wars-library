@@ -53,7 +53,7 @@ div{
     flex-grow: 1;
     font-size: 20px;
 }
-.search-section{
+.search-container{
     border: 2px solid darkcyan;
     border-radius: 2px;
     padding: 3px;
